@@ -1,37 +1,99 @@
-import React from 'react';
-import { StyleSheet, TextInput, TouchableOpacity, Text, View } from 'react-native';
-import tw from 'tailwind-react-native-classnames'
+import * as React from 'react';
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { createNavigationContainerRef } from '@react-navigation/native';
+import { Button, Text, Alert } from 'react-native';
+import * as SecureStore from 'expo-secure-store';
+
+const Stack = createNativeStackNavigator();
+const navigationRef = createNavigationContainerRef()
+
+import LoginScreen from './Screens/Login';
+import DashboardScreen from './Screens/Dashboard';
+import ProxyHostsScreen from './Screens/ProxyHosts';
+import ViewProxyHostScreen from './Screens/ViewProxyHost';
 
 export default function App() {
+  function logout() {
+    if (navigationRef.isReady()) {
+      SecureStore.deleteItemAsync('token');
+      SecureStore.deleteItemAsync('dashboardUrl');
+      navigationRef.navigate('Login');
+    } else {
+      Alert.alert(
+        "Error",
+        "Navigation not ready, please try restarting application.",
+        [
+          { text: "OK" }
+        ]
+      );
+    }
+  }
+
   return (
-    <View style={styles.container}>
-      <Text style={[tw`block mb-2 text-sm font-medium text-gray-900`]}>Dashboard URL</Text>
-      <TextInput
-        style={[tw`bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-60 p-2.5 mb-2`]}
-        placeholder="http://example.com:81"
-      />
-      <Text style={[tw`block mb-2 text-sm font-medium text-gray-900`]}>Email</Text>
-      <TextInput
-        style={[tw`bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-60 p-2.5 mb-2`]}
-        placeholder="email@example.com"
-      />
-      <Text style={[tw`block mb-2 text-sm font-medium text-gray-900`]}>Password</Text>
-      <TextInput
-        style={[tw`bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-60 p-2.5 mb-2`]}
-        placeholder="http://example.com:81"
-      />
-      <TouchableOpacity onPress={() => alert('Hello, world!')} style={[tw`text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2`]}>
-        <Text style={[tw`text-white`]}>Login</Text>
-      </TouchableOpacity>
-    </View>
+    <NavigationContainer ref={navigationRef}>
+      <Stack.Navigator>
+        <Stack.Screen
+          name="Login"
+          component={LoginScreen}
+          options={{
+            headerTitle: 'Login',
+            headerStyle: {
+              backgroundColor: '#e3e3e3',
+            },
+          }}
+        />
+        <Stack.Screen
+          name="Dashboard"
+          component={DashboardScreen}
+          options={{
+            headerTitle: 'Dashboard',
+            headerRight: () => (
+              <Button
+                onPress={() => logout()}
+                title="Logout"
+              />
+            ),
+            headerLeft: () => <Text></Text>,
+            headerStyle: {
+              backgroundColor: '#e3e3e3',
+            },
+            gestureEnabled: false,
+          }}
+        />
+        <Stack.Screen
+          name="Proxy Hosts"
+          component={ProxyHostsScreen}
+          options={{
+            headerTitle: 'Proxy Hosts',
+            headerRight: () => (
+              <Button
+                onPress={() => logout()}
+                title="Logout"
+              />
+            ),
+            headerStyle: {
+              backgroundColor: '#e3e3e3',
+            },
+          }}
+        />
+        <Stack.Screen
+          name="View Proxy Host"
+          component={ViewProxyHostScreen}
+          options={{
+            headerTitle: 'View Proxy Host',
+            headerRight: () => (
+              <Button
+                onPress={() => logout()}
+                title="Logout"
+              />
+            ),
+            headerStyle: {
+              backgroundColor: '#e3e3e3',
+            },
+          }}
+        />
+      </Stack.Navigator>
+    </NavigationContainer>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  }
-});
